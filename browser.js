@@ -4,7 +4,7 @@ var aesModes = require('browserify-aes/modes')
 var desModes = require('browserify-des/modes')
 var ebtk = require('evp_bytestokey')
 
-function createCipher (suite, password) {
+function createCipher (suite, password, options) {
   suite = suite.toLowerCase()
 
   var keyLen, ivLen
@@ -19,10 +19,10 @@ function createCipher (suite, password) {
   }
 
   var keys = ebtk(password, false, keyLen, ivLen)
-  return createCipheriv(suite, keys.key, keys.iv)
+  return createCipheriv(suite, keys.key, keys.iv, options)
 }
 
-function createDecipher (suite, password) {
+function createDecipher (suite, password, options) {
   suite = suite.toLowerCase()
 
   var keyLen, ivLen
@@ -37,20 +37,20 @@ function createDecipher (suite, password) {
   }
 
   var keys = ebtk(password, false, keyLen, ivLen)
-  return createDecipheriv(suite, keys.key, keys.iv)
+  return createDecipheriv(suite, keys.key, keys.iv, options)
 }
 
-function createCipheriv (suite, key, iv) {
+function createCipheriv (suite, key, iv, options) {
   suite = suite.toLowerCase()
-  if (aesModes[suite]) return aes.createCipheriv(suite, key, iv)
+  if (aesModes[suite]) return aes.createCipheriv(suite, key, iv, options)
   if (desModes[suite]) return new DES({ key: key, iv: iv, mode: suite })
 
   throw new TypeError('invalid suite type')
 }
 
-function createDecipheriv (suite, key, iv) {
+function createDecipheriv (suite, key, iv, options) {
   suite = suite.toLowerCase()
-  if (aesModes[suite]) return aes.createDecipheriv(suite, key, iv)
+  if (aesModes[suite]) return aes.createDecipheriv(suite, key, iv, options)
   if (desModes[suite]) return new DES({ key: key, iv: iv, mode: suite, decrypt: true })
 
   throw new TypeError('invalid suite type')
